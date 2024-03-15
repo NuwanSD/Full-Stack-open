@@ -1,7 +1,7 @@
 const express = require("express");
-const app = express();
+const cors = require("cors");
 
-app.use(express.json());
+const app = express();
 
 let notes = [
   {
@@ -20,6 +20,18 @@ let notes = [
     important: true,
   },
 ];
+
+const requestLogger = (request, response, next) => {
+  console.log("Method:", request.method);
+  console.log("Path:  ", request.path);
+  console.log("Body:  ", request.body);
+  console.log("---");
+  next();
+};
+
+app.use(cors());
+app.use(express.json());
+app.use(requestLogger);
 
 app.get("/", (request, response) => {
   response.send("<h1>Hello world</h1>");
@@ -44,7 +56,7 @@ app.delete("/api/notes/:id", (request, response) => {
   const id = Number(request.params.id);
   notes = notes.filter((note) => note.id !== id);
 
-  response.status(204).end;
+  response.status(204).end();
 });
 
 const generateId = () => {
@@ -72,7 +84,9 @@ app.post("/api/notes", (request, response) => {
   response.json(note);
 });
 
-const PORT = 3001;
+//app.use(unknownEndpoint);
+
+const PORT = 3001 || process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
